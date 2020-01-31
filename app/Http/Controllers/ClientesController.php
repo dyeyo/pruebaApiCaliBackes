@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Clientes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ClientesController extends Controller
 {
@@ -17,8 +18,30 @@ class ClientesController extends Controller
     }
 
     public function store(Request $request){
-        $cliente=Clientes::create($request->all());
-        return response()->json($cliente);
+
+        $validator = Validator::make($request->all(), [
+            'cedula'=>'required',
+            'nombre'=>'required',
+            'celular'=>'required',
+            'direccion'=>'required',
+            'ciudad'=>'required',
+            'id_agente'=>'required',
+        ]);
+        if ($validator->fails()) {
+            $data=[
+                'code'=>400,
+                'status'=>'error',
+                'message'=>'Faltan datos'
+            ];
+        }else{
+            $cliente=Clientes::create($request->all());
+            $data=[
+                'code'=>200,
+                'status'=>'success',
+                'cliente'=>$cliente
+            ];
+        }
+        return response()->json($data, $data['code']);
     }
 
     public function show($id)
@@ -34,9 +57,31 @@ class ClientesController extends Controller
     public function update(Request $request, $id)
     {
         $cliente = Clientes::findOrFail($id);
-        $cliente->update($request->all());
 
-        return $cliente;
+        $validator = Validator::make($request->all(), [
+            'cedula'=>'required',
+            'nombre'=>'required',
+            'celular'=>'required',
+            'direccion'=>'required',
+            'ciudad'=>'required',
+            'id_agente'=>'required',
+        ]);
+        if ($validator->fails()) {
+            $data=[
+                'code'=>400,
+                'status'=>'error',
+                'message'=>'Faltan datos'
+            ];
+        }else{
+            $cliente->update($request->all());
+            $data=[
+                'code'=>200,
+                'status'=>'success',
+                '$cliente'=>$cliente
+            ];
+        }
+        return response()->json($data, $data['code']);
+
     }
 
     public function delete($id)

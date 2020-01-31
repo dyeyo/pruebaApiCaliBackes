@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Agente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AgentesController extends Controller
 {
@@ -16,9 +17,28 @@ class AgentesController extends Controller
 
     public function store(Request $request)
     {
-        return Agente::create($request->all());
-    }
+        $validator = Validator::make($request->all(), [
+            'cedula'=>'required',
+            'agente'=>'required',
+            'nombre'=>'required',
+        ]);
+        if ($validator->fails()) {
+            $data=[
+                'code'=>400,
+                'status'=>'error',
+                'message'=>'Faltan datos'
+            ];
+        }else{
+            $agente = Agente::create($request->all());
+            $data=[
+                'code'=>200,
+                'status'=>'success',
+                'agente'=>$agente
+            ];
+        }
 
+        return response()->json($data, $data['code']);
+    }
 
     public function show($id)
     {
@@ -32,8 +52,27 @@ class AgentesController extends Controller
     public function update(Request $request, $id)
     {
         $agente = Agente::findOrFail($id);
+        $validator = Validator::make($request->all(), [
+            'cedula'=>'required',
+            'agente'=>'required',
+            'nombre'=>'required',
+        ]);
+        if ($validator->fails()) {
+            $data=[
+                'code'=>400,
+                'status'=>'error',
+                'message'=>'Faltan datos'
+            ];
+        }else{
         $agente->update($request->all());
-        return $agente;
+        $data=[
+            'code'=>200,
+            'status'=>'success',
+            'agente'=>$agente
+        ];
+    }
+
+    return response()->json($data, $data['code']);
     }
 
     public function delete($id)
